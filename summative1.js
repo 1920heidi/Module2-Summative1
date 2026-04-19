@@ -1,21 +1,14 @@
 const readline = require('readline');
 
-const rl = readline.createInterface({
+const inputOutput = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-// Store user answers for conditional logic
-let userAnswers = {};
-let currentQuestionIndex = 0;
-let score = 0;
-let totalQuestions = 0;
-let startTime;
-
 // Entry question for everyone
 const entryQuestions = [
   {
-    id: 'nationality',
+    id: '0-nationality',
     question: "Are you Kenyan?",
     choices: ["Yes", "No"]
   }
@@ -38,7 +31,7 @@ const conditionalQuestions = {
       answer: [0]
     },
     {
-      id: '1-county',
+      id: '1-city',
       question: "Which city has a national park within?",
       choices: ["Nakuru", "Mombasa", "Kisumu", "Nairobi", "all of the above"],
       answer: [4]
@@ -67,81 +60,68 @@ const conditionalQuestions = {
   ],
 };
 
+// Store user answers for conditional logic
+let userAnswers = {};
+let currentQuestionIndex = 0;
+let score = 0;
+let totalQuestions = 0;
+let startTime;
+
 function getNextQuestions() {
-  // Determine which questions to ask next based on previous answers
-  var questionsToAsk = [];
+  // Determine which questions to ask next based on the first question
   
   // If user is Kenyan
-  if (userAnswers.nationality === "Yes") {
-    for (var i = 0; i < conditionalQuestions.kenyan_yes.length; i++) {
-      questionsToAsk.push(conditionalQuestions.kenyan_yes[i]);
-    }
+  if (userAnswers['0-nationality'] === "Yes") {
+    return [...conditionalQuestions.kenyan_yes];
   } 
   // If user is not Kenyan
-  else if (userAnswers.nationality === "No") {
-    for (var j = 0; j < conditionalQuestions.kenyan_no.length; j++) {
-      questionsToAsk.push(conditionalQuestions.kenyan_no[j]);
-    }
+  else if (userAnswers['0-nationality'] === "No") {
+    return [...conditionalQuestions.kenyan_no];
   }
   
-  return questionsToAsk;
+  return [];
 }
 
-function askQuestion(questionObj) {
-  console.log("\n" + questionObj.question);
+function askQuestion(questionQuiz) {
+  console.log("\n" + questionQuiz.question);
   
   // Display all choices
-  for (var i = 0; i < questionObj.choices.length; i++) {
-    console.log(questionObj.choices[i]);
-  }
+ questionQuiz.choices.forEach(function(choice) {
+  console.log(choice);
+    });
   
-  rl.question('\nYour answer: ', function(input) {
+  inputOutput.question('\nYour answer: ', function(input) {
     var userInput = input.trim().toLowerCase();
     var matchingChoice = null;
     
-    // Find matching choice (case-insensitive)
-    for (var k = 0; k < questionObj.choices.length; k++) {
-      if (questionObj.choices[k].toLowerCase() === userInput) {
-        matchingChoice = questionObj.choices[k];
-        break;
-      }
-    }
+    // Find matching choice (case-insensitive to accomodate user input incase they don't write answer as is)
+    matchingChoice = questionQuiz.choices.find(choice => 
+      choice.toLowerCase() === userInput
+    );
     
-    if (matchingChoice !== null) {
+    if (matchingChoice) {
       // Get the index of the selected choice
-      var selectedIndex = -1;
-      for (var m = 0; m < questionObj.choices.length; m++) {
-        if (questionObj.choices[m] === matchingChoice) {
-          selectedIndex = m;
-          break;
-        }
-      }
+      var selectedIndex = questionQuiz.choices.findIndex(choice => 
+        choice === matchingChoice
+      );
       
-      userAnswers[questionObj.id] = matchingChoice;
+      userAnswers[questionQuiz.id] = matchingChoice;
       
       // Check if answer is correct (only if question has correct answers defined)
-      if (questionObj.answer && questionObj.answer.length > 0) {
+      if (questionQuiz.answer && questionQuiz.answer.length > 0) {
         totalQuestions++;
         
-        var isCorrect = false;
-        for (var n = 0; n < questionObj.answer.length; n++) {
-          if (questionObj.answer[n] === selectedIndex) {
-            isCorrect = true;
-            break;
-          }
-        }
+        var isCorrect = questionQuiz.answer.some(answerIndex => 
+          answerIndex === selectedIndex
+        );
         
-        if (isCorrect === true) {
+        if (isCorrect) {
           score++;
           console.log("✅ Correct! You selected: " + matchingChoice);
         } else {
-          var correctAnswers = "";
-          for (var p = 0; p < questionObj.answer.length; p++) {
-            if (p > 0) {
-              correctAnswers = correctAnswers + ", ";
-            }
-            correctAnswers = correctAnswers + questionObj.choices[questionObj.answer[p]];
-          }
+          var correctAnswers = questionQuiz.answer.map(answerIndex => 
+            questionQuiz.choices[answerIndex]
+          ).join(", ");
           console.log("❌ Incorrect. You selected: " + matchingChoice);
           console.log("   Correct answer(s): " + correctAnswers);
         }
@@ -153,7 +133,7 @@ function askQuestion(questionObj) {
       continueQuiz();
     } else {
       console.log("❌ Invalid choice. Please type one of the available options.");
-      askQuestion(questionObj);
+      askQuestion(questionQuiz);
     }
   });
 }
@@ -176,26 +156,11 @@ function continueQuiz() {
   // Then ask conditional questions
   else if (nextQuestions.length > 0) {
     // Find the next question we haven't asked yet
-    var nextQuestion = null;
-    for (var j = 0; j < nextQuestions.length; j++) {
-      var questionId = nextQuestions[j].id;
-      var alreadyAnswered = false;
-      
-      // Check if we already have this answer
-      for (var key in userAnswers) {
-        if (key === questionId) {
-          alreadyAnswered = true;
-          break;
-        }
-      }
-      
-      if (alreadyAnswered === false) {
-        nextQuestion = nextQuestions[j];
-        break;
-      }
-    }
+    var nextQuestion = nextQuestions.find(question => 
+      !userAnswers.hasOwnProperty(question.id)
+    );
     
-    if (nextQuestion !== null) {
+    if (nextQuestion) {
       askQuestion(nextQuestion);
     } else {
       finishQuiz();
@@ -230,14 +195,12 @@ function finishQuiz() {
     console.log("\n🎯 Final Score: " + score + "/" + totalQuestions + " (" + percentage + "%)");
     
     // Performance feedback
-    if (percentage >= 90) {
-      console.log('🏆 Excellent! Outstanding performance!');
-    } else if (percentage >= 70) {
-      console.log('🎉 Great job! Well done!');
-    } else if (percentage >= 50) {
-      console.log('👍 Good effort! Keep practicing!');
+    if (percentage >= 60) {
+      console.log('Excellent!');
+    } else if (percentage >= 30) {
+      console.log('Good try!');
     } else {
-      console.log('💪 Don\'t give up! Study more and try again!');
+      console.log('Better luck next time!');
     }
   }
   
@@ -250,26 +213,8 @@ function finishQuiz() {
     console.log(capitalizedKey + ": " + value);
   }
   
-  // Provide personalized feedback based on their answers
-  console.log('\n🎯 Personalized Message:');
-  if (userAnswers.nationality === "Yes") {
-    console.log("Welcome, fellow Kenyan! 🇰🇪");
-    if (userAnswers.county) {
-      console.log("Great to have someone from " + userAnswers.county + "!");
-    }
-  } else {
-    console.log("Welcome to Kenya! 🌍");
-    if (userAnswers.visit_reason) {
-      console.log("Hope you enjoy your " + userAnswers.visit_reason.toLowerCase() + " here!");
-    }
-  }
-  
-  rl.close();
+  inputOutput.close();
 }
-
-// Start the quiz
-console.log('🎪 Welcome to the Adaptive Quiz!');
-console.log('Your answers will determine which questions come next.\n');
 
 // Record start time
 startTime = Date.now();

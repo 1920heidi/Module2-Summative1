@@ -62,7 +62,6 @@ const conditionalQuestions = {
 
 // Store user answers for conditional logic
 let userAnswers = {};
-let currentQuestionIndex = 0;
 let score = 0;
 let totalQuestions = 0;
 let startTime;

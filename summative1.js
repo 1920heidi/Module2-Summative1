@@ -20,7 +20,7 @@ const conditionalQuestions = {
   kenyan_yes: [
     {
       id: '1-county',
-      question: "Which of the following are cities in Kenya?",
+      question: "Which of the following are cities in Kenya (this is a conditional question)?",
       choices: ["Nairobi", "Mombasa", "Dandora", "Konza", "Naivasha"],
       answer: [0,1]
     },
@@ -104,7 +104,6 @@ function askQuestion(questionQuiz) {
       var selectedIndex = questionQuiz.choices.findIndex(choice => 
         choice === matchingChoice
       );
-      
       userAnswers[questionQuiz.id] = matchingChoice;
       
       // Check if answer is correct (only if question has correct answers defined)
@@ -117,23 +116,23 @@ function askQuestion(questionQuiz) {
         
         if (isCorrect) {
           score++;
-          console.log("✅ Correct! You selected: " + matchingChoice);
+          console.log("Correct! You selected: " + matchingChoice);
         } else {
           var correctAnswers = questionQuiz.answer.map(answerIndex => 
             questionQuiz.choices[answerIndex]
           ).join(", ");
-          console.log("❌ Incorrect. You selected: " + matchingChoice);
-          console.log("   Correct answer(s): " + correctAnswers);
+          console.log("Incorrect. You selected: " + matchingChoice);
+          console.log("Correct answer(s): " + correctAnswers);
         }
       } else {
-        console.log("✅ You selected: " + matchingChoice);
+        console.log("You selected: " + matchingChoice);
       }
       
       // Continue with next question or finish
       continueQuiz();
     } else {
-      console.log("❌ Invalid choice. Please type one of the available options.");
-      askQuestion(questionQuiz);
+      console.log("Invalid choice. Please type one of the available options.");
+      askQuestion(questionQuiz); 
     }
   });
 }
@@ -141,20 +140,8 @@ function askQuestion(questionQuiz) {
 function continueQuiz() {
   // Get the appropriate next questions based on current answers
   var nextQuestions = getNextQuestions();
-  var remainingBaseQuestions = [];
   
-  // Check if there are remaining base questions
-  for (var i = currentQuestionIndex + 1; i < entryQuestions.length; i++) {
-    remainingBaseQuestions.push(entryQuestions[i]);
-  }
-  
-  // First finish any remaining base questions
-  if (remainingBaseQuestions.length > 0) {
-    currentQuestionIndex++;
-    askQuestion(entryQuestions[currentQuestionIndex]);
-  }
-  // Then ask conditional questions
-  else if (nextQuestions.length > 0) {
+  if (nextQuestions.length > 0) {
     // Find the next question we haven't asked yet
     var nextQuestion = nextQuestions.find(question => 
       !userAnswers.hasOwnProperty(question.id)
@@ -174,8 +161,9 @@ function finishQuiz() {
   const endTime = Date.now();
   const timeTaken = Math.round((endTime - startTime) / 1000); // Convert to seconds
   
+  // border indicator for results section
   console.log('\n' + '='.repeat(50));
-  console.log('📊 QUIZ COMPLETE - Your Results:');
+  console.log('QUIZ COMPLETE - Your Results:');
   console.log('='.repeat(50));
   
   // Display time taken
@@ -187,12 +175,12 @@ function finishQuiz() {
   } else {
     timeString = seconds + "s";
   }
-  console.log("⏱️ Time Taken: " + timeString);
+  console.log("Time Taken: " + timeString);
   
   // Display score
   if (totalQuestions > 0) {
     var percentage = Math.round((score / totalQuestions) * 100);
-    console.log("\n🎯 Final Score: " + score + "/" + totalQuestions + " (" + percentage + "%)");
+    console.log("\nFinal Score: " + score + "/" + totalQuestions + " (" + percentage + "%)");
     
     // Performance feedback
     if (percentage >= 60) {
@@ -204,7 +192,7 @@ function finishQuiz() {
     }
   }
   
-  console.log('\n📋 Your Profile:');
+  console.log('\nYour Profile:');
   
   // Display all user answers
   for (var key in userAnswers) {
@@ -213,7 +201,7 @@ function finishQuiz() {
     console.log(capitalizedKey + ": " + value);
   }
   
-  inputOutput.close();
+  inputOutput.close();       
 }
 
 // Record start time

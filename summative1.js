@@ -9,7 +9,7 @@ const inputOutput = readline.createInterface({
 const entryQuestions = [
   {
     id: '0-nationality',
-    question: "Are you Kenyan?",
+    question: "Are you Kenyan?(this is a conditional question)", 
     choices: ["Yes", "No"]
   }
 ];
@@ -20,7 +20,7 @@ const conditionalQuestions = {
   kenyan_yes: [
     {
       id: '1-county',
-      question: "Which of the following are cities in Kenya (this is a conditional question)?",
+      question: "Which of the following are cities in Kenya?",
       choices: ["Nairobi", "Mombasa", "Dandora", "Konza", "Naivasha"],
       answer: [0,1]
     },
@@ -193,7 +193,7 @@ function finishQuiz() {
   
   console.log('\nYour Profile:');
   
-  // Display all user answers
+  // Display all user answers -- Profile
   for (var key in userAnswers) {
     var value = userAnswers[key];
     var capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);

@@ -96,9 +96,8 @@ Correct! You selected: Nairobi
 
 [Quiz continues...]
 
-==================================================
 QUIZ COMPLETE - Your Results:
-==================================================
+
 Time Taken: 1m 23s
 
 Final Score: 2/3 (67%)

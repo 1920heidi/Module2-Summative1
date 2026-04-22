@@ -1,6 +1,6 @@
 # CLI Quiz Application
 
-Ia a command-line interactive quiz that provides different question sets based on user nationality, focusing on Kenyan and African knowledge.
+This quiz is a command-line interactive quiz that provides different question sets based on user nationality, focusing on Kenyan and African knowledge.
 
 ## Description
 
